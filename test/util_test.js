@@ -1,5 +1,6 @@
-const util = require("../lib/util");
-const expect = require('chai').expect;
+import { describe, it, expect, makeDirname } from "https://taisukef.github.io/denolib/nodelikeassert.mjs"
+
+import util from "../lib/util.mjs";
 
 describe('util', function() {
   it('#z2h', () => {

@@ -1,5 +1,6 @@
-const bangou = require("../lib/bangou");
-const expect = require('chai').expect;
+import { describe, it, expect, makeDirname } from "https://taisukef.github.io/denolib/nodelikeassert.mjs"
+
+import bangou from "../lib/bangou.mjs";
 
 const data = {
   "": {},

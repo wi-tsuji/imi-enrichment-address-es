@@ -1,8 +1,23 @@
-# imi-enrichment-address
+# 住所変換コンポーネント imi-enrichment-address ESβ
 
-入力となる JSON-LD に含まれる `住所>表記 をもつ 場所型` または `表記をもつ住所型` に対して各種のプロパティを補完して返します。
+入力となる JSON-LD に含まれる `住所>表記 をもつ 場所型` または `表記をもつ住所型` に対して各種のプロパティを補完して返すESモジュールです。
 
 入力が `住所>表記 をもつ 場所型` の場合には地理座標と住所型の各プロパティが補完されます。
+
+[![esmodules](https://taisukef.github.com/denolib/esmodulesbadge.svg)](https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Modules)
+[![deno](https://taisukef.github.com/denolib/denobadge.svg)](https://deno.land/)
+
+## API (web/Deno)
+
+- 入力 (input) : 変換対象となる JSON または住所文字列
+- 出力 : 変換結果の JSON-LD オブジェクトを返却する Promise ※ 変換は非同期で行うために Promise が返されます
+
+```
+import IMIEnrichmentAddress from "https://code4sabae.github.io/imi-enrichment-address-es/IMIEnrichmentAddress.mjs";
+
+console.log(await IMIEnrichmentAddress("福井県鯖江市新横江2-3-4"));
+```
+toplevel await 非対応のブラウザでは、async関数内で使用してください。
 
 **input1.json**
 
@@ -104,154 +119,19 @@
 以下のエラーが検出されます
 
 - 該当する地名が見つからない場合 (海外住所、都道府県名の間違いなど)
-- 該当する市区町村名が見つからない場合
-- 該当する市区町村が複数存在する場合（「府中市」など）
-- 該当する町名が見つからない場合
-- 指定された丁目が存在しない場合（「霞が関五丁目」など）
-
-
-
-# 利用者向け情報
-
-以下の手順はパッケージアーカイブ `imi-enrichment-address-2.0.0.tgz` を用いて実行します。
-
-## インストール
-
-以下の手順でインストールします。
-
-```
-$ npm install imi-enrichment-address-2.0.0.tgz
-```
-
-## コマンドラインインターフェイス
-
-`imi-enrichment-address-2.0.0.tgz` にはコマンドラインインターフェイスが同梱されており、
-通常はインストールすると `imi-enrichment-address` コマンドが使用できるようになります。
-
-コマンドラインインターフェイスのファイルの実体は `bin/cli.js` です。
-
-```
-$ npm install imi-enrichment-address-2.0.0.tgz
-
-# ヘルプの表示
-$ imi-enrichment-address -h
-
-# JSON ファイルの変換
-$ imi-enrichment-address input.json > output.json
-
-# 標準入力からの変換
-$ cat input.json | imi-enrichment-address > output.json
-
-# 文字列からの変換
-$ imi-enrichment-address -s 霞が関2 > output.json
-
-```
-
-または `npx` を使って以下のようにインストールせずに実行することも可能です。
-
-```
-$ npx imi-enrichment-address-2.0.0.tgz -s 霞が関2
-```
-
-## Web API
-
-`imi-enrichment-address-2.0.0.tgz` には Web API を提供するサーバプログラムが同梱されています。
-
-### サーバの起動方法
-
-`bin/server.js` がサーバの実体です。
-以下のように `bin/server.js` を実行することで起動できます。
-
-```
-$ npm install imi-enrichment-address-2.0.0.tgz
-$ node node_modules/imi-enrichment-address/bin/server.js
-Usage: node server.js [port number]
-
-$ node node_modules/imi-enrichment-address/bin/server.js 8080
-imi-enrichment-address-server is running on port 8080
-```
-
-なお、実行時にはポート番号の指定が必要です。指定しなかった場合にはエラーが表示されて終了します。
-サーバを停止するには `Ctrl-C` を入力してください。
-
-### 利用方法
-
-WebAPI は POST された JSON または テキストを入力として JSON を返します。
-
-```
-$ curl -X POST -H 'Content-Type: application/json' -d '{"@type":"住所型","表記":"霞が関2"}' localhost:8080
-{
-  "@type": "住所型",
-  "表記": "霞が関2",
-  "都道府県": "東京都",
-  "都道府県コード": "http://data.e-stat.go.jp/lod/sac/C13000",
-  "市区町村": "千代田区",
-  "市区町村コード": "http://data.e-stat.go.jp/lod/sac/C13101",
-  "町名": "霞が関",
-  "丁目": "2"
-}
-```
-
-```
-$ curl -X POST -H 'Content-Type: text/plain' -d '霞が関2' localhost:8080
-{
-  "@type": "住所型",
-  "表記": "霞が関2",
-  "都道府県": "東京都",
-  "都道府県コード": "http://data.e-stat.go.jp/lod/sac/C13000",
-  "市区町村": "千代田区",
-  "市区町村コード": "http://data.e-stat.go.jp/lod/sac/C13101",
-  "町名": "霞が関",
-  "丁目": "2"
-}
-```
-
-- WebAPI の URL に GET メソッドでアクセスした場合には HTML ページが表示され、WebAPI の動作を確認することができます
-- POST,GET 以外のメソッドでアクセスした場合には `405 Method Not Allowed` エラーが返されます
-- `Content-Type: application/json` ヘッダが設定されている場合は、POST Body を JSON として扱い、JSON に対しての変換結果を返します
-- `Content-Type: application/json` ヘッダが設定されているが POST Body が JSON としてパースできない場合は `400 Bad Request` エラーが返されます
-- `Content-Type: application/json` ヘッダが設定されていない場合は、POST Body を住所文字列として扱い、住所文字列をもとに情報の補完された場所型の JSON を返します
-
-## API (Node.js)
-
-モジュール `imi-enrichment-address` は以下のような API の関数を提供します。
-
-```
-module.exports = function(input) {..}
-```
-
-- 入力 (input) : 変換対象となる JSON または住所文字列
-- 出力 : 変換結果の JSON-LD オブジェクトを返却する Promise ※ 変換は非同期で行うために Promise が返されます
-
-```
-const convert = require('imi-enrichment-address');
-convert("霞が関2").then(json=>{
-  console.log(json);
-});
-```
+- 該当する市区町村名が見つからない場合（*未対応）
+- 該当する市区町村が複数存在する場合（「府中市」など）（*未対応）
+- 該当する町名が見つからない場合（*未対応）
+- 指定された丁目が存在しない場合（「霞が関五丁目」など）（*未対応）
 
 # 開発者向け情報
-
-以下の手順はソースコードアーカイブ `imi-enrichment-address-2.0.0.src.tgz` を用いて実行します。
-
-## 準備
-
-本パッケージでは [総務省統計局 e-Stat 統計LOD:地域に関するデータ:統計に用いる標準地域コード](http://data.e-stat.go.jp/lodw/provdata/lodRegion#3-2-1) のデータおよび [国土交通省 国土政策局 国土情報課:位置参照情報ダウンロードサービス:大字・町丁目レベル位置参照情報](http://nlftp.mlit.go.jp/isj/index.html) のデータをダウンロードして使用します。
-
-これらのダウンロードは環境構築手順の `npm run setup` の中で自動的に実行されます。
 
 ## 環境構築
 
 以下の手順で環境を構築します。
 
 ```
-$ mkdir imi-enrichment-address
-$ cd imi-enrichment-address
-$ tar xvzf /tmp/imi-enrichment-address-2.0.0.src.tgz
-$ npm install
-$ npm run download
-$ npm run tree
-$ npm run format
+$ git clone https://github.com/code4sabae/imi-enrichment-address-es.git
 ```
 
 ## テスト
@@ -259,12 +139,30 @@ $ npm run format
 以下の手順でテストを実行します
 
 ```
-$ cd imi-enrichment-address
-$ npm test
+$ deno test -A
 ```
-
 
 ## ブラウザビルド(参考情報)
 
-`imi-enrichment-address` はブラウザ上での直接動作をサポートしていません。
-WebAPI を使用してください。
+`imi-enrichment-address` はESモジュールとしてブラウザ上で直接動作します。  
+[geocode](https://github.com/code4sabae/geocode)の仕様により、初期サイズ100KB程度、使用する市区町村を検索するごとに80KB程度のデータがキャッシュされます。
+
+## 依存モジュール
+
+住所ジオコーディングモジュール geocode.mjs  
+https://github.com/code4sabae/lgcode  
+
+地方公共団体コードモジュール lgcode.mjs  
+https://github.com/code4sabae/lgcode  
+
+## 出典
+
+本ライブラリは IMI 情報共有基盤 コンポーネントツール <https://info.gbiz.go.jp/tools/imi_tools/> の「住所変換コンポーネント」をESモジュール対応したものです。
+
+## 関連記事
+
+Deno対応ESモジュール対応、IMIコンポーネントツールx4とDenoバッジ  
+https://fukuno.jig.jp/2866  
+
+日本政府発のJavaScriptライブラリを勝手にweb標準化するプロジェクト、全角-半角統一コンポーネントのESモジュール/Deno対応版公開  
+https://fukuno.jig.jp/2865  
