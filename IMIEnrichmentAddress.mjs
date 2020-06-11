@@ -87,7 +87,8 @@ const enrich = async function(src) {
         address[key] = tail[key];
       });
       if (response.latlng && target !== address) {
-        const ll = response.latlng.split(",");
+        // const ll = Array.isArray(response.latlng) ? response.latlng : response.latlng.split(",");
+        const ll = response.latlng;
         target["地理座標"] = {
           "@type": "座標型",
           "緯度": ll[0],

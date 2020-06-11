@@ -1,4 +1,5 @@
 import { describe, it, expect, makeDirname } from "https://taisukef.github.io/denolib/nodelikeassert.mjs"
+// import { describe, it, expect, makeDirname } from "../../denolib/nodelikeassert.mjs"
 
 import bangou from "../lib/bangou.mjs";
 
